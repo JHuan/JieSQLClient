@@ -49,9 +49,9 @@ public class InsertStatementFragmrnt extends Fragment {
 
     private void testmySQL(){
 
-        String url = "jdbc:mysql://192.168.102.128:8555/NodeJsSample";
-        String user = "root";
-        String pwd = "";
+        String url = "jdbc:derby:C:\\Users\\barryjiang\\MyDB";
+        String user = "admin";
+        String pwd = "admin";
 
         MySQLHelper sqlHelper = new MySQLHelper();
         if(sqlHelper.connect2DB(url,user,pwd)){
@@ -62,7 +62,7 @@ public class InsertStatementFragmrnt extends Fragment {
             List<String> paraQuery = new LinkedList<String>();
             paraQuery.add("Ted");
             try{
-                queryResult = sqlHelper.getQueryResult("SELECT user_name,user_age FROM NodeJsSample.UserInfo where user_name = ?;",paraQuery);
+                queryResult = sqlHelper.getQueryResult("select * from MyDb.Student where name = ?;",paraQuery);
             }catch (SQLException e){
                 e.printStackTrace();
             }

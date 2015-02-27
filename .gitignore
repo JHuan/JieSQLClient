@@ -1,0 +1,16 @@
+*.apk
+*.name
+*.iml
+*.class
+gen/com/huan/JieSQL/BuildConfig.java
+gen/com/huan/JieSQL/R.java
+.idea/workspace.xml
+.idea/scopes/scope_settings.xml
+.idea/modules.xml
+.idea/misc.xml
+gen/com/huan/JieSQL/Manifest.java
+.idea/vcs.xml
+.idea/libraries/mysql_connector_java_5_1_34_bin.xml
+.idea/copyright/profiles_settings.xml
+.idea/encodings.xml
+.idea/compiler.xml

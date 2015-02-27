@@ -77,12 +77,17 @@ public class SettingFragment extends ListFragment {
 
         //setting list view's listener;
 
-        final View settingView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_setting ,null);
-        final EditText editText = (EditText)settingView.findViewById(R.id.editTextContent);
+
 
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                //if these are writen before setOnItemClickListener, app will throw a runtime exception complaining
+                // "child view has already had a father".It seems that settingView holds the dialog as father and
+                // does not release it when dailog dismiss.I don't what the hell...
+                final View settingView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_setting, null);
+                final EditText editText = (EditText) settingView.findViewById(R.id.editTextContent);
 
                 final int index = i;
                 new AlertDialog.Builder(getActivity())
@@ -95,10 +100,10 @@ public class SettingFragment extends ListFragment {
                                 if (setting != null && setting.length() > 0) {
                                     //store in database and notify the list view to refresh the data shown
                                     mSharedPreferences.edit().putString(mSettingTitles[index], setting).commit();
-                                    HashMap<String,String> map = new HashMap<String, String>();
-                                    map.put(MAIN_TITLE,mSettingTitles[index]);
-                                    map.put(SUB_TITLE,setting);
-                                    data.set(index,map);
+                                    HashMap<String, String> map = new HashMap<String, String>();
+                                    map.put(MAIN_TITLE, mSettingTitles[index]);
+                                    map.put(SUB_TITLE, setting);
+                                    data.set(index, map);
                                     adapter.notifyDataSetChanged();
                                 }
                             }

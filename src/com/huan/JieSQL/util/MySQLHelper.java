@@ -5,7 +5,9 @@
 
 package com.huan.JieSQL.util;
 
+import android.util.Log;
 import com.mysql.jdbc.*;
+
 
 import java.sql.*;
 import java.sql.Connection;
@@ -25,7 +27,8 @@ public class MySQLHelper {
 
         boolean connected = false;
         try {
-            Class.forName("com.mysql.jdbc.Drive");
+            //com.mysql.jdbc.Driver driver = new com.mysql.jdbc.Driver();
+            Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
             mConnection = DriverManager.getConnection(url, userName, password);
             connected = true;
         }catch (SQLException e){
