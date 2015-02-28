@@ -51,7 +51,7 @@ public class InsertStatementFragmrnt extends Fragment {
 
         String url = "jdbc:derby:C:\\Users\\barryjiang\\MyDB";
         String user = "admin";
-        String pwd = "admin";
+        String pwd = "";
 
         MySQLHelper sqlHelper = new MySQLHelper();
         if(sqlHelper.connect2DB(url,user,pwd)){
@@ -62,7 +62,7 @@ public class InsertStatementFragmrnt extends Fragment {
             List<String> paraQuery = new LinkedList<String>();
             paraQuery.add("Ted");
             try{
-                queryResult = sqlHelper.getQueryResult("select * from MyDb.Student where name = ?;",paraQuery);
+                queryResult = sqlHelper.getQueryResult("select * from MyDb.Student where name = ?",paraQuery);
             }catch (SQLException e){
                 e.printStackTrace();
             }

@@ -7,6 +7,7 @@ package com.huan.JieSQL.util;
 
 import android.util.Log;
 import com.mysql.jdbc.*;
+import org.apache.derby.jdbc.EmbeddedDriver;
 
 
 import java.sql.*;
@@ -28,12 +29,12 @@ public class MySQLHelper {
         boolean connected = false;
         try {
             //com.mysql.jdbc.Driver driver = new com.mysql.jdbc.Driver();
-            Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+            org.apache.derby.jdbc.EmbeddedDriver driver = new EmbeddedDriver();
             mConnection = DriverManager.getConnection(url, userName, password);
             connected = true;
         }catch (SQLException e){
             e.printStackTrace();
-        }catch (ClassNotFoundException e){
+        }catch (Exception e){
             e.printStackTrace();
         }
         return connected;
