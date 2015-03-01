@@ -59,7 +59,9 @@ public class SettingFragment extends ListFragment {
         //setting up the setting list  [barryjiang 2015/2/22]
 
         //read the setting titles from xml
-        mSettingTitles = getResources().getStringArray(R.array.setting_title);
+
+
+        mSettingTitles = new String[]{SQLClientSetting.DB_URL,SQLClientSetting.DB_UERNAME,SQLClientSetting.DB_PASSWORD};
         mListView = getListView();
 
         final ArrayList<HashMap<String, String>> data = new ArrayList<HashMap<String, String>>();

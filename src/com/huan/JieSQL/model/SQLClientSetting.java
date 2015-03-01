@@ -11,4 +11,7 @@ package com.huan.JieSQL.model;
 public final class SQLClientSetting {
 
     public final static String DB_SQL_SETTING = "setting";
+    public final static String DB_URL = "MySQL URL";
+    public final static String DB_UERNAME = "UserName";
+    public final static String DB_PASSWORD = "Password";
 }

@@ -7,7 +7,6 @@ package com.huan.JieSQL.util;
 
 import android.util.Log;
 import com.mysql.jdbc.*;
-import org.apache.derby.jdbc.EmbeddedDriver;
 
 
 import java.sql.*;
@@ -28,8 +27,8 @@ public class MySQLHelper {
 
         boolean connected = false;
         try {
-            //com.mysql.jdbc.Driver driver = new com.mysql.jdbc.Driver();
-            org.apache.derby.jdbc.EmbeddedDriver driver = new EmbeddedDriver();
+            com.mysql.jdbc.Driver driver = new com.mysql.jdbc.Driver();
+           // org.apache.derby.jdbc.EmbeddedDriver driver = new EmbeddedDriver();
             mConnection = DriverManager.getConnection(url, userName, password);
             connected = true;
         }catch (SQLException e){
@@ -40,52 +39,95 @@ public class MySQLHelper {
         return connected;
     }
 
-    //get sql query result. sql statement require the format of "select ? where name = ?"
-    public  List<Map<String,Object>> getQueryResult(String sql,List<String> para) throws SQLException{
+    //not sure if it is right to use it like this...
+    public void finalize(){
+        disconnectDB();
+    }
 
-        List<Map<String, Object>> result = new LinkedList<Map<String, Object>>();
-
-        PreparedStatement statment = mConnection.prepareStatement(sql);
-
-        if(para!=null && para.size()>0){
-            for(int i=0;i<para.size();i++){
-                //NOTICE: sql statement slot seems it use 1 index rather than 0 index...
-                statment.setObject(i+1,para.get(i));
-            }
+    public void disconnectDB(){
+        try{
+            if(mConnection!=null && !mConnection.isClosed())
+                mConnection.close();
+        }catch (SQLException e){
+            e.printStackTrace();
         }
 
-        ResultSet resultSet = statment.executeQuery();
-        ResultSetMetaData resultSetMetaData = statment.getMetaData();
+    }
 
-        //get column's length
-        int columnLen = resultSetMetaData.getColumnCount();
-        if(resultSet.first()){
-            do{
+    //get sql query result. sql statement require the format of "select ? where name = ?"
+    public  List<Map<String,Object>> getQueryResult(String sql,List<String> para){
+
+        List<Map<String, Object>> result = new LinkedList<Map<String, Object>>();
+        PreparedStatement statment = null;
+
+        try{
+            statment = mConnection.prepareStatement(sql);
+
+            if(para!=null && para.size()>0){
+                for(int i=0;i<para.size();i++){
+                    //NOTICE: sql statement slot seems it use 1 index rather than 0 index...
+                    statment.setObject(i+1,para.get(i));
+                }
+            }
+
+            ResultSet resultSet = statment.executeQuery();
+            ResultSetMetaData resultSetMetaData = statment.getMetaData();
+
+            //get column's length
+            int columnLen = resultSetMetaData.getColumnCount();
+
+            while(resultSet.next()){
                 Map<String,Object> map = new HashMap<String, Object>();
                 for(int i = 0; i<columnLen; i++){
                     String columnName = resultSetMetaData.getColumnName(i+1);
-                    Object object = resultSet.getObject(i);
+                    Object object = resultSet.getObject(i+1);
                     map.put(columnName,object);
                 }
                 result.add(map);
-            }while(resultSet.next());
+            }
+
+        }catch (SQLException e){
+            e.printStackTrace();
+        }finally {
+            try{
+                statment.close();
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+
         }
+
         return result;
 
     }
 
-    public int excuteUpdateSql(String sql,List<String> para) throws SQLException{
+    public int excuteUpdateSql(String sql,List<String> para){
 
-        PreparedStatement statment = mConnection.prepareStatement(sql);
+        PreparedStatement statment = null;
+        int effectRows = 0;
 
-        if(para!=null && para.size()>0){
-            for(int i=0;i<para.size();i++){
-                //NOTICE: sql statement slot seems it use 1 index rather than 0 index...
-                statment.setObject(i+1,para.get(i));
+        try {
+            statment = mConnection.prepareStatement(sql);
+
+            if(para!=null && para.size()>0){
+                for(int i=0;i<para.size();i++){
+                    //NOTICE: sql statement slot seems it use 1 index rather than 0 index...
+                    statment.setObject(i+1,para.get(i));
+                }
             }
+            effectRows = statment.executeUpdate();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }finally {
+            try{
+                statment.close();
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+
         }
 
-        return statment.executeUpdate();
+        return effectRows;
     }
 
 

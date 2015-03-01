@@ -5,6 +5,7 @@ package com.huan.JieSQL;/*
 
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,32 +50,47 @@ public class InsertStatementFragmrnt extends Fragment {
 
     private void testmySQL(){
 
-        String url = "jdbc:derby:C:\\Users\\barryjiang\\MyDB";
-        String user = "admin";
-        String pwd = "";
 
-        MySQLHelper sqlHelper = new MySQLHelper();
-        if(sqlHelper.connect2DB(url,user,pwd)){
-
-            //test query
-
-            List<Map<String,Object>> queryResult = null;
-            List<String> paraQuery = new LinkedList<String>();
-            paraQuery.add("Ted");
-            try{
-                queryResult = sqlHelper.getQueryResult("select * from MyDb.Student where name = ?",paraQuery);
-            }catch (SQLException e){
-                e.printStackTrace();
-            }
+        new AsyncTask<Void,Void,Void>(){
 
             String result = "";
-            for(Map<String,Object> map : queryResult){
-                for(Map.Entry<String,Object> entry:map.entrySet()){
-                    result+=entry.getKey()+"\t"+entry.getValue()+"\n";
+            @Override
+            protected Void doInBackground(Void... para){
+
+                String url = "jdbc:mysql://113.29.229.38/hsmim_test";
+                String user = "hsmim_test";
+                String pwd = "hsmim_test";
+
+                MySQLHelper sqlHelper = new MySQLHelper();
+                if(sqlHelper.connect2DB(url,user,pwd)){
+
+                    //test query
+
+                    List<Map<String,Object>> queryResult = null;
+                    List<String> paraQuery = new LinkedList<String>();
+                    paraQuery.add("1");
+                    queryResult = sqlHelper.getQueryResult("select * from test",null);
+
+
+
+                    for(Map<String,Object> map : queryResult){
+                        for(Map.Entry<String,Object> entry:map.entrySet()){
+                            result+=entry.getKey()+"\t"+entry.getValue()+"\n";
+                        }
+                    }
+
                 }
+                return null;
             }
 
-            mSQLResultText.setText(result);
-        }
+            protected void onPostExecute(Void para){
+                mSQLResultText.setText(result);
+            }
+        }.execute();
+
+
+
+
+
     }
 }
