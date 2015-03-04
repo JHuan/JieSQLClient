@@ -9,15 +9,27 @@ package com.huan.JieSQL;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+import com.huan.JieSQL.Interface.SQLListener;
+import com.huan.JieSQL.util.JieSQLUtil;
+
+import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends Activity {
 
 
-    ActionBar               mActionBar;
-    FragmentManager         mFragmentManager;
+    private ActionBar               mActionBar;
+    private FragmentManager         mFragmentManager;
+
+    private ProgressDialog          mProgressDialog;
+
+    private JieSQLUtil              mSQLUtil;
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -34,11 +46,42 @@ public class MainActivity extends Activity {
         mActionBar = getActionBar();
         mActionBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar_background));
 
+
+        //connect to DB Now
+        JieSQLAppliaction.g_SQLJieSQLUtil.addListener(new SQLListener() {
+            @Override
+            public void onBeforeConnectDB() {
+                mProgressDialog = ProgressDialog.show(MainActivity.this,"Hey,man!","Connecting to DB...");
+                mProgressDialog.setCancelable(false);
+            }
+
+            @Override
+            public void onGetConnectResult(Boolean isConnected) {
+                if (!isConnected) {
+                    Toast.makeText(getParent(), "Connect failed! Check your configure,dude~", Toast.LENGTH_LONG).show();
+                }
+                mProgressDialog.dismiss();
+            }
+
+            @Override
+            public void onSendingCommit() {
+
+            }
+
+            @Override
+            public void onGetCommitResult(List<Map<String, Object>> resltSet) {
+
+            }
+        });
+        JieSQLAppliaction.g_SQLJieSQLUtil.connect();
+
         mFragmentManager = getFragmentManager();
 
-        mFragmentManager.beginTransaction().add(R.id.layout_main, new InsertStatementFragmrnt()).commit();
+        mFragmentManager.beginTransaction().add(R.id.layout_main, new SQLStatementFragment()).commit();
 
     }
+
+    
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -67,4 +110,7 @@ public class MainActivity extends Activity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+
 }

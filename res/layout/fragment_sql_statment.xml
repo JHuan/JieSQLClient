@@ -3,7 +3,6 @@
   ~ Copyright (c) 2015.
   ~ @author barryjiang's.
   -->
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:layout_width="match_parent"
              android:background="@android:color/white"
@@ -18,8 +17,10 @@
             android:ems="10"
             android:id="@+id/editTextSQLResult"
             android:lines="8"
+            android:background="@drawable/edit_text_frame"
             android:hint="SQL Result"
             android:fadeScrollbars="true"
+            android:layout_margin="10dp"
             android:layout_alignParentBottom="true"
             android:editable="false"
             android:layout_alignParentLeft="true"/>
@@ -31,33 +32,26 @@
             android:layout_marginLeft="10dp"
             android:layout_above="@+id/editTextSQLResult"
             android:layout_alignParentLeft="true"/>
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            android:text="Insert statement:"
-            android:textColor="@android:color/black"
-            android:id="@+id/textView2"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"/>
+
     <Button
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:textColor="@android:color/white"
             android:text="Commit"
             android:id="@+id/buttonCommit"
+            android:background="#44B0F1"
             android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"/>
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@android:color/black"
-            android:layout_marginLeft="10dp"
-            android:text="Medium Text"
-            android:id="@+id/textViewTemplate"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_marginTop="40dp"/>
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:id="@+id/layoutTextViews"
+                android:layout_margin="10dp"
+                android:layout_height="fill_parent" android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true" android:layout_above="@+id/buttonCommit">
+        </LinearLayout>
+
 
 </RelativeLayout>

@@ -45,7 +45,7 @@ public class SettingFragment extends ListFragment {
         mRootView = inflater.inflate(R.layout.fragment_setting, container, false);
 
         //read the setting from sharepreference
-        mSharedPreferences = getActivity().getSharedPreferences(SQLClientSetting.DB_SQL_SETTING, Activity.MODE_PRIVATE);
+        mSharedPreferences = getActivity().getSharedPreferences(SQLClientSetting.DB_NAME, Activity.MODE_PRIVATE);
 
         return mRootView;
     }

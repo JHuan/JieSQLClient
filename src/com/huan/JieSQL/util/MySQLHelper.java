@@ -21,7 +21,10 @@ import java.util.*;
  */
 public class MySQLHelper {
 
+    private static final String TAG = "MySQLHelper";
+
     private Connection mConnection;
+    private boolean    mIsConnected = false;
 
     public boolean connect2DB(String url,String userName, String password){
 
@@ -36,6 +39,7 @@ public class MySQLHelper {
         }catch (Exception e){
             e.printStackTrace();
         }
+        mIsConnected = connected;
         return connected;
     }
 
@@ -59,6 +63,11 @@ public class MySQLHelper {
 
         List<Map<String, Object>> result = new LinkedList<Map<String, Object>>();
         PreparedStatement statment = null;
+
+        if(!mIsConnected){
+            Log.e(TAG,"DB is disconnected!");
+            return  result;
+        }
 
         try{
             statment = mConnection.prepareStatement(sql);
@@ -105,6 +114,11 @@ public class MySQLHelper {
 
         PreparedStatement statment = null;
         int effectRows = 0;
+
+        if(!mIsConnected){
+            Log.e(TAG,"DB is disconnected!");
+            return  effectRows;
+        }
 
         try {
             statment = mConnection.prepareStatement(sql);
