@@ -2,4 +2,6 @@
 <resources>
     <string name="app_name">JieSQLClient</string>
     <string name="db_disconnected">You don\'t Connect to DB...</string>
+    <string name="action_bar_title_setting">Setting</string>
+    <string name="action_bar_title_sql_editing">Edit</string>
 </resources>

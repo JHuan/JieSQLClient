@@ -3,9 +3,8 @@ package com.huan.JieSQL;/*
  * @author barryjiang's.
  */
 
-import android.app.ActionBar;
-import android.app.Activity;
-import android.app.Fragment;
+import android.app.*;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -18,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.huan.JieSQL.Interface.SQLListener;
 import com.huan.JieSQL.model.SQLTemplate;
 import com.huan.JieSQL.util.MySQLHelper;
 
@@ -31,17 +31,20 @@ import java.util.Map;
  */
 public class SQLStatementFragment extends Fragment {
 
-    private static final String TAG="InsertStatementFragment";
+    private static final String         TAG="InsertStatementFragment";
 
     private View mRootView;
 
-    private List<TextView>      mSQLStatementViews;
+    private List<TextView>              mSQLStatementViews;
 
-    private EditText        mSQLResultText;
-    private Button          mCommitButton;
-    private LinearLayout    mSQLTextViewsLayout;
+    private EditText                    mSQLResultText;
+    private Button                      mCommitButton;
+    private LinearLayout                mSQLTextViewsLayout;
 
-    private SharedPreferences mPreferences;
+    private SharedPreferences           mPreferences;
+
+    private SQLListener                 mListener;
+    private ProgressDialog              mProgressDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -58,10 +61,12 @@ public class SQLStatementFragment extends Fragment {
             public void onClick(View v) {
 
                 String sql = getSqlStatementFromView(mSQLStatementViews);
-
+                asyGetSQLResult(sql);
 
             }
         });
+
+        getActivity().getActionBar().setTitle(R.string.action_bar_title_sql_editing);
 
         mSQLTextViewsLayout = (LinearLayout)mRootView.findViewById(R.id.layoutTextViews);
         mSQLStatementViews = new LinkedList<TextView>();
@@ -120,6 +125,12 @@ public class SQLStatementFragment extends Fragment {
     }
 
 
+    public void onDestroyView(){
+        super.onDestroyView();
+
+        JieSQLAppliaction.g_SQLJieSQLUtil.removeListener(mListener);
+    }
+
     //get String from list of sql text views
     private String getSqlStatementFromView(List<TextView> listViews){
 
@@ -137,9 +148,54 @@ public class SQLStatementFragment extends Fragment {
         return sql;
     }
 
-    private String asyGetSQLResult(String sql){
+    private void asyGetSQLResult(String _sql){
 
-        return  null;
+        final String sql = _sql;
+        new AlertDialog.Builder(getActivity())
+        .setTitle("Notice").setMessage("Sure?")
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener(){
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        JieSQLAppliaction.g_SQLJieSQLUtil.sycGetSQLResult(sql,null);
+                    }
+                })
+                .setNegativeButton(android.R.string.no,null)
+                .show();
+    }
+
+
+    private class CommitListener implements SQLListener{
+
+        @Override
+        public void onBeforeConnectDB() {
+
+        }
+
+        @Override
+        public void onGetConnectResult(Boolean isConnected) {
+
+        }
+
+        @Override
+        public void onSendingCommit() {
+            mProgressDialog = ProgressDialog.show(getActivity(), "Hey,man!", "Commit...");
+            mProgressDialog.setCancelable(false);
+
+        }
+
+        @Override
+        public void onGetCommitResult(List<Map<String, Object>> resltSet) {
+            mProgressDialog.dismiss();
+            String result = "";
+            for(Map<String,Object> map : resltSet){
+                for(Map.Entry<String,Object> entry:map.entrySet()){
+                    result+=entry.getKey()+"\t"+entry.getValue()+"\n";
+                }
+            }
+            mSQLResultText.setText(result);
+
+        }
     }
 
     private void testmySQL(){

@@ -28,6 +28,7 @@ public class MainActivity extends Activity {
     private FragmentManager         mFragmentManager;
 
     private ProgressDialog          mProgressDialog;
+    private SQLListener             mListener;
 
     private JieSQLUtil              mSQLUtil;
     /**
@@ -48,31 +49,9 @@ public class MainActivity extends Activity {
 
 
         //connect to DB Now
-        JieSQLAppliaction.g_SQLJieSQLUtil.addListener(new SQLListener() {
-            @Override
-            public void onBeforeConnectDB() {
-                mProgressDialog = ProgressDialog.show(MainActivity.this,"Hey,man!","Connecting to DB...");
-                mProgressDialog.setCancelable(false);
-            }
+        mListener = new ConnectListener();
+        JieSQLAppliaction.g_SQLJieSQLUtil.addListener(mListener);
 
-            @Override
-            public void onGetConnectResult(Boolean isConnected) {
-                if (!isConnected) {
-                    Toast.makeText(getParent(), "Connect failed! Check your configure,dude~", Toast.LENGTH_LONG).show();
-                }
-                mProgressDialog.dismiss();
-            }
-
-            @Override
-            public void onSendingCommit() {
-
-            }
-
-            @Override
-            public void onGetCommitResult(List<Map<String, Object>> resltSet) {
-
-            }
-        });
         JieSQLAppliaction.g_SQLJieSQLUtil.connect();
 
         mFragmentManager = getFragmentManager();
@@ -89,6 +68,10 @@ public class MainActivity extends Activity {
 
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    public boolean onPrepareOptionMenu(Menu menu){
+       
     }
 
     @Override
@@ -111,6 +94,38 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        JieSQLAppliaction.g_SQLJieSQLUtil.removeListener(mListener);
+    }
 
 
+    private class ConnectListener implements SQLListener{
+
+        @Override
+        public void onBeforeConnectDB() {
+            mProgressDialog = ProgressDialog.show(MainActivity.this,"Hey,man!","Connecting to DB...");
+            mProgressDialog.setCancelable(false);
+        }
+
+        @Override
+        public void onGetConnectResult(Boolean isConnected) {
+            if (!isConnected) {
+                Toast.makeText(MainActivity.this, "Connect failed! Check your configure,dude~", Toast.LENGTH_LONG).show();
+            }
+            mProgressDialog.dismiss();
+        }
+
+        @Override
+        public void onSendingCommit() {
+
+        }
+
+        @Override
+        public void onGetCommitResult(List<Map<String, Object>> resltSet) {
+
+        }
+    }
 }

@@ -6,6 +6,7 @@
 package com.huan.JieSQL.util;
 
 import android.util.Log;
+import com.huan.JieSQL.model.SQLResultData;
 import com.mysql.jdbc.*;
 
 
@@ -66,6 +67,9 @@ public class MySQLHelper {
 
         if(!mIsConnected){
             Log.e(TAG,"DB is disconnected!");
+            Map<String,Object> errorInfo = new HashMap<String, Object>();
+            errorInfo.put(SQLResultData.EXTRA_ERROR_INFO,"ERROR:DB is disconnected!");
+            result.add(errorInfo);
             return  result;
         }
 
@@ -97,6 +101,9 @@ public class MySQLHelper {
 
         }catch (SQLException e){
             e.printStackTrace();
+            Map<String,Object> errorInfo = new HashMap<String, Object>();
+            errorInfo.put(SQLResultData.EXTRA_ERROR_INFO,e.getMessage());
+            result.add(errorInfo);
         }finally {
             try{
                 statment.close();
@@ -110,14 +117,17 @@ public class MySQLHelper {
 
     }
 
-    public int excuteUpdateSql(String sql,List<String> para){
+    public List<Map<String,Object>> excuteUpdateSql(String sql,List<String> para){
 
+        List<Map<String, Object>> result = new LinkedList<Map<String, Object>>();
         PreparedStatement statment = null;
         int effectRows = 0;
 
         if(!mIsConnected){
             Log.e(TAG,"DB is disconnected!");
-            return  effectRows;
+            Map<String,Object> errorInfo = new HashMap<String, Object>();
+            errorInfo.put(SQLResultData.EXTRA_ERROR_INFO,"ERROR:DB is disconnected!");
+            result.add(errorInfo);
         }
 
         try {
@@ -130,8 +140,16 @@ public class MySQLHelper {
                 }
             }
             effectRows = statment.executeUpdate();
+
+            Map<String,Object> effectRowsMap = new HashMap<String, Object>();
+            effectRowsMap.put(SQLResultData.ERTRA_EFFECT_ROWS,effectRows);
+            result.add(effectRowsMap);
+
         }catch (SQLException e){
             e.printStackTrace();
+            Map<String,Object> errorInfo = new HashMap<String, Object>();
+            errorInfo.put(SQLResultData.EXTRA_ERROR_INFO,e.getMessage());
+            result.add(errorInfo);
         }finally {
             try{
                 statment.close();
@@ -141,7 +159,8 @@ public class MySQLHelper {
 
         }
 
-        return effectRows;
+        return result;
+
     }
 
 

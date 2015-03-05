@@ -47,6 +47,9 @@ public class SettingFragment extends ListFragment {
         //read the setting from sharepreference
         mSharedPreferences = getActivity().getSharedPreferences(SQLClientSetting.DB_NAME, Activity.MODE_PRIVATE);
 
+
+        getActivity().getActionBar().setTitle(R.string.action_bar_title_setting);
+
         return mRootView;
     }
 

@@ -12,10 +12,9 @@ import com.huan.JieSQL.Interface.SQLListener;
 import com.huan.JieSQL.JieSQLAppliaction;
 import com.huan.JieSQL.R;
 import com.huan.JieSQL.model.SQLClientSetting;
+import com.huan.JieSQL.model.SQLResultData;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Administrator on 2015/3/1.
@@ -46,10 +45,18 @@ public class JieSQLUtil {
 
     //just wired....I don't think is a good way to use it
     public void addListener(SQLListener listener) {
+
         mListeners.add(listener);
     }
 
-    public boolean connect(){
+
+    public void removeListener(SQLListener listener){
+        mListeners.remove(listener);
+    }
+
+
+
+    public void connect(){
 
         //get db url info and connect to it!
         final String url = mPreferences.getString(SQLClientSetting.DB_URL,null);
@@ -77,13 +84,15 @@ public class JieSQLUtil {
 
                 @Override
                 protected Boolean doInBackground(Void... params) {
-                    return JieSQLAppliaction.g_SQLJieSQLUtil.connect();
+                    return mSQLHepler.connect2DB(url,user,password);
 
                 }
 
                 @Override
                 protected void onPostExecute(Boolean connected) {
                     super.onPostExecute(connected);
+
+                    mConnected = connected;
 
                     if(mListeners.size()>0){
                         for(SQLListener listener:mListeners){
@@ -99,28 +108,59 @@ public class JieSQLUtil {
         else
             Log.e(TAG,"Get DB info null!"+"url:"+url+" userName:"+user+"password:"+password);
 
-        return mConnected;
+
     }
 
-    public List<Map<String,Object>> sycGetQueryResult(String sql,List<String> para){
+    public void sycGetSQLResult(String _sql,List<String> _para){
+
+        final String sql = _sql;
+        final List<String> para = _para;
 
         if(!mConnected){
             Toast.makeText(mContext, R.string.db_disconnected,Toast.LENGTH_SHORT).show();
-            return null;
+            return;
         }
 
-        return mSQLHepler.getQueryResult(sql,para);
+        new AsyncTask<Void,Void,List<Map<String,Object>>>(){
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                if(mListeners.size()>0){
+                    for(SQLListener listener:mListeners){
+                        if(listener!=null)
+                            listener.onSendingCommit();
+                    }
+                }
+            }
+
+
+            @Override
+            protected List<Map<String, Object>> doInBackground(Void... params) {
+                //judge if is a query sql
+                if(sql.indexOf("select",0)==0){
+                    return mSQLHepler.getQueryResult(sql,para);
+                }else {
+                    return mSQLHepler.excuteUpdateSql(sql,para);
+                }
+            }
+
+            @Override
+            protected void onPostExecute(List<Map<String, Object>> result) {
+
+                if(mListeners.size()>0){
+                    for(SQLListener listener:mListeners){
+                        if(listener!=null)
+                            listener.onGetCommitResult(result);
+                    }
+                }
+
+            }
+        }.execute();
+
     }
 
-    public int excuteUpdateSql(String sql,List<String> para){
 
-        if(!mConnected){
-            Toast.makeText(mContext, R.string.db_disconnected,Toast.LENGTH_SHORT).show();
-            return 0;
-        }
-
-        return mSQLHepler.excuteUpdateSql(sql, para);
-    }
 
     public void disconnect(){
         mSQLHepler.disconnectDB();
