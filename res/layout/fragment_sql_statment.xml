@@ -24,14 +24,7 @@
             android:layout_alignParentBottom="true"
             android:editable="false"
             android:layout_alignParentLeft="true"/>
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Result:"
-            android:textColor="@android:color/black"
-            android:layout_marginLeft="10dp"
-            android:layout_above="@+id/editTextSQLResult"
-            android:layout_alignParentLeft="true"/>
+
 
     <Button
             android:layout_width="fill_parent"

@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -30,14 +31,18 @@ import java.util.HashMap;
  */
 public class SettingFragment extends ListFragment {
 
+    public static final String  TAG                     = "SettingFragment";
+
     private View                mRootView;
     private ListView            mListView;
 
     private String[]            mSettingTitles;
     private SharedPreferences   mSharedPreferences;
 
-    private final static String MAIN_TITLE  = "main_title";
-    private final static String SUB_TITLE   = "sub_title";
+    private final static String MAIN_TITLE              = "main_title";
+    private final static String SUB_TITLE               = "sub_title";
+
+    private boolean             mIsDataAltered           = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -49,6 +54,8 @@ public class SettingFragment extends ListFragment {
 
 
         getActivity().getActionBar().setTitle(R.string.action_bar_title_setting);
+
+        getActivity().getWindow().invalidatePanelMenu(Window.FEATURE_OPTIONS_PANEL);
 
         return mRootView;
     }
@@ -88,6 +95,7 @@ public class SettingFragment extends ListFragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
+
                 //if these are writen before setOnItemClickListener, app will throw a runtime exception complaining
                 // "child view has already had a father".It seems that settingView holds the dialog as father and
                 // does not release it when dailog dismiss.I don't what the hell...
@@ -110,6 +118,7 @@ public class SettingFragment extends ListFragment {
                                     map.put(SUB_TITLE, setting);
                                     data.set(index, map);
                                     adapter.notifyDataSetChanged();
+                                    mIsDataAltered = true;
                                 }
                             }
                         })
@@ -119,5 +128,7 @@ public class SettingFragment extends ListFragment {
             }
         });
     }
+
+
 
 }

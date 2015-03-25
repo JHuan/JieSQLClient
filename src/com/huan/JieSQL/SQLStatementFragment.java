@@ -5,6 +5,7 @@ package com.huan.JieSQL;/*
 
 import android.app.*;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -13,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -31,7 +33,7 @@ import java.util.Map;
  */
 public class SQLStatementFragment extends Fragment {
 
-    private static final String         TAG="InsertStatementFragment";
+    public static final String         TAG="InsertStatementFragment";
 
     private View mRootView;
 
@@ -51,7 +53,24 @@ public class SQLStatementFragment extends Fragment {
 
         mRootView = inflater.inflate(R.layout.fragment_sql_statment, container, false);
 
+        getActivity().getWindow().invalidatePanelMenu(Window.FEATURE_OPTIONS_PANEL);
+
+        //set result text HorizontallyScrolling
         mSQLResultText = (EditText)mRootView.findViewById(R.id.editTextSQLResult);
+        mSQLResultText.setHorizontalFadingEdgeEnabled(true);
+        mSQLResultText.setVerticalScrollBarEnabled(true);
+        mSQLResultText.setHorizontallyScrolling(true);
+        mSQLResultText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus)
+                    v.setBackgroundDrawable(getResources().getDrawable(R.drawable.edit_text_frame));
+                else
+                    v.setBackgroundDrawable(getResources().getDrawable(R.drawable.edi_text_frame_focus));
+
+            }
+        });
+
         mCommitButton = (Button)mRootView.findViewById(R.id.buttonCommit);
 
         mPreferences = getActivity().getSharedPreferences(SQLTemplate.DB_NAME, Activity.MODE_PRIVATE);
@@ -89,41 +108,10 @@ public class SQLStatementFragment extends Fragment {
         return mRootView;
     }
 
-    private void generateTextViewsFromTemplate(String template) {
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        int lastSoltIndex = 0;
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-        for(int i=0;i<template.length();i++){
-            char c = template.charAt(i);
-            if(c==SQLTemplate.TEMPLATE_KEY){
-                //new a editText
-                EditText editText = new EditText(getActivity());
-                editText.setText(SQLTemplate.DEAFAULT_SLOT_TEXT);
-                editText.setTextColor(Color.rgb(0, 0, 0));
-                editText.setBackgroundDrawable(getResources().getDrawable(R.drawable.edit_text_frame));
-                editText.setTextSize(20);
-
-                //generate the textviews before
-                if(c>0){
-                    String text = template.substring(lastSoltIndex,i);
-                    TextView textView = new TextView(getActivity());
-                    textView.setTextColor(Color.rgb(0,0,0));
-                    textView.setText(text);
-                    textView.setTextSize(20);
-                    mSQLStatementViews.add(textView);
-                    mSQLTextViewsLayout.addView(textView,layoutParams);
-                }
-                //add the slot
-                mSQLStatementViews.add(editText);
-                mSQLTextViewsLayout.addView(editText,layoutParams);
-
-                //record last slot index
-                lastSoltIndex = i;
-            }
-
-        }
     }
-
 
     public void onDestroyView(){
         super.onDestroyView();
@@ -146,6 +134,51 @@ public class SQLStatementFragment extends Fragment {
         }
 
         return sql;
+    }
+
+    private void generateTextViewsFromTemplate(String template) {
+
+        int lastSoltIndex = 0;
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        for(int i=0;i<template.length();i++){
+            char c = template.charAt(i);
+            if(c==SQLTemplate.TEMPLATE_KEY){
+                //new a editText
+                EditText editText = new EditText(getActivity());
+                editText.setText(SQLTemplate.DEAFAULT_SLOT_TEXT);
+                editText.setTextColor(Color.rgb(0, 0, 0));
+                editText.setBackgroundDrawable(getResources().getDrawable(R.drawable.edit_text_frame));
+                editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                    @Override
+                    public void onFocusChange(View v, boolean hasFocus) {
+                        if(!hasFocus)
+                            v.setBackgroundDrawable(getResources().getDrawable(R.drawable.edit_text_frame));
+                        else
+                            v.setBackgroundDrawable(getResources().getDrawable(R.drawable.edi_text_frame_focus));
+
+                    }
+                });
+                editText.setTextSize(20);
+
+                //generate the textviews before
+                if(c>0){
+                    String text = template.substring(lastSoltIndex,i);
+                    TextView textView = new TextView(getActivity());
+                    textView.setTextColor(Color.rgb(0,0,0));
+                    textView.setText(text);
+                    textView.setTextSize(20);
+                    mSQLStatementViews.add(textView);
+                    mSQLTextViewsLayout.addView(textView,layoutParams);
+                }
+                //add the slot
+                mSQLStatementViews.add(editText);
+                mSQLTextViewsLayout.addView(editText,layoutParams);
+
+                //record last slot index
+                lastSoltIndex = i;
+            }
+
+        }
     }
 
     private void asyGetSQLResult(String _sql){

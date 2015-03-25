@@ -37,8 +37,6 @@ public class MySQLHelper {
             connected = true;
         }catch (SQLException e){
             e.printStackTrace();
-        }catch (Exception e){
-            e.printStackTrace();
         }
         mIsConnected = connected;
         return connected;

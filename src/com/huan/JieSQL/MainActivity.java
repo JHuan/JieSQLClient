@@ -6,16 +6,15 @@
 
 package com.huan.JieSQL;
 
-import android.app.ActionBar;
-import android.app.Activity;
-import android.app.FragmentManager;
-import android.app.ProgressDialog;
+import android.app.*;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 import com.huan.JieSQL.Interface.SQLListener;
+import com.huan.JieSQL.model.SQLClientSetting;
 import com.huan.JieSQL.util.JieSQLUtil;
 
 import java.util.List;
@@ -56,7 +55,7 @@ public class MainActivity extends Activity {
 
         mFragmentManager = getFragmentManager();
 
-        mFragmentManager.beginTransaction().add(R.id.layout_main, new SQLStatementFragment()).commit();
+        mFragmentManager.beginTransaction().add(R.id.layout_main, new SQLStatementFragment(),SQLStatementFragment.TAG).commit();
 
     }
 
@@ -67,12 +66,29 @@ public class MainActivity extends Activity {
         // Inflate the menu; this adds items to the action bar if it is present.
 
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
         return true;
     }
 
-    public boolean onPrepareOptionMenu(Menu menu){
-       
+    public boolean onPrepareOptionsMenu(Menu menu) {
+
+        //it sucks.....But I can not find better way to do this.Why Fragment cannot get the top of its stack!
+
+        Fragment fragment = mFragmentManager.findFragmentByTag(SettingFragment.TAG);
+        if(fragment != null && fragment.isVisible()){
+            menu.findItem(R.id.action_settings).setVisible(false);
+            menu.findItem(R.id.action_add).setVisible(false);
+        }
+
+        fragment = mFragmentManager.findFragmentByTag(SQLStatementFragment.TAG);
+        if(fragment!=null && fragment.isVisible()){
+            menu.findItem(R.id.action_settings).setVisible(true);
+            menu.findItem(R.id.action_add).setVisible(true);
+        }
+        return super.onPrepareOptionsMenu(menu);
+
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -83,10 +99,16 @@ public class MainActivity extends Activity {
         int id = item.getItemId();
         switch (id){
             case R.id.action_settings:
-                mFragmentManager.beginTransaction().replace(R.id.layout_main,new SettingFragment())
-                .addToBackStack(null).commit();
+                mFragmentManager.beginTransaction().replace(R.id.layout_main,new SettingFragment(),SettingFragment.TAG)
+                .addToBackStack(null).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
                 break;
             case R.id.action_add:
+                break;
+            case R.id.action_retry:
+                if(!JieSQLAppliaction.g_SQLJieSQLUtil.ismConnected())
+                    JieSQLAppliaction.g_SQLJieSQLUtil.connect();
+                else
+                    Toast.makeText(this,"You have connected to DB now,boy.",Toast.LENGTH_SHORT).show();
                 break;
             default:
                 break;
@@ -99,8 +121,8 @@ public class MainActivity extends Activity {
         super.onDestroy();
 
         JieSQLAppliaction.g_SQLJieSQLUtil.removeListener(mListener);
-    }
 
+    }
 
     private class ConnectListener implements SQLListener{
 
